@@ -3,35 +3,36 @@ class KnightTravailer {
     this.startSquare = startSquare;
     this.endSquare = endSquare;
     this.rootMove = new moveNode(null, startSquare);
+    this.endMove = null;
   }
   findEndSquare() {
     let moveQueue = [this.rootMove];
     let endSquareMoveNode = null;
 
-    while (endSquareFound == null) {
+    while (endSquareMoveNode == null) {
       let currentMoveNode = moveQueue[0];
-      if (currentMoveNode.startSquare != this.endSquare) {
+      if (!(JSON.stringify(currentMoveNode.startSquare) == JSON.stringify(this.endSquare))) {
         for (const move of currentMoveNode.availableMoves) {
           let newMoveNode = new moveNode(currentMoveNode, move);
           moveQueue.push(newMoveNode);
         }
         moveQueue.shift();
       } else {
-        endSquareFound = currentMoveNode;
+        endSquareMoveNode = currentMoveNode;
       }
     }
-
-    return  endSquareMoveNode;
+    this.endMove = endSquareMoveNode;
   }
 
-  getMovePath(endNode) {
+  getMovePath() {
+    this.findEndSquare();
     let movePath = [];
-    let currentNode = endNode;
-    while (currentNode.prevSquare !== null) {
-      movePath.append(currentNode.startSquare);
-      currentNode = currentNode.prevSquare;
+    let currentNode = this.endMove;
+    movePath.push(currentNode.startSquare);
+    while (currentNode.previousSquare !== null) {
+      movePath.push(currentNode.previousSquare.startSquare);
+      currentNode = currentNode.previousSquare;
     }
-    movePath.append(currentNode.startSquare);
 
     return movePath.reverse();
     
@@ -42,8 +43,7 @@ class moveNode {
   constructor(prevSquare, startSquare) {
     this.startSquare = startSquare
     this.previousSquare = prevSquare;
-    this.availableMoves = calculateMoves();
-    this.oneMoveAway = false;
+    this.availableMoves = this.calculateMoves();
   }
   calculateMoves() {
     let availableMoves = [];
@@ -63,10 +63,6 @@ class moveNode {
       (array) =>
         array[0] >= 0 && array[0] <= 7 && array[1] >= 0 && array[1] <= 7
     );
-
-    if (availableMoves.includes(this.endSquare)) {
-        this.oneMoveAway = true;
-    }
     
     return availableMoves;
   }
@@ -80,7 +76,7 @@ function knightMoves(startSquare, endSquare) {
   }
 
   const knightTravailer = new KnightTravailer(startSquare, endSquare);
-  return knightTravailer.findEndSquare();
+  return knightTravailer.getMovePath();
 }
 
-console.log(knightMoves([0, 0], [3, 5]));
+console.log(knightMoves([0,0],[1,2]));
